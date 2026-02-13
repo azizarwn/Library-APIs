@@ -18,6 +18,15 @@ app.include_router(router=borrow_router)
 app.include_router(router=members_router)
 
 
+@app.get("/")
+def root():
+    return {
+        "message": "Library Management API",
+        "docs": "/scalar",
+        "endpoints": {"books": "/books/", "members": "/members/", "borrowing_records": "/borrowing_records/"},
+    }
+
+
 @app.get(path="/scalar")
 def get_scalar():
     return get_scalar_api_reference(openapi_url=app.openapi_url, title=app.title)
