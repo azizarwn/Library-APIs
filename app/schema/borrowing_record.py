@@ -6,7 +6,6 @@ from pydantic import BaseModel
 class BorrowingRecordRequest(BaseModel):
     book_id: int
     member_id: int
-    return_date: date | None = None
 
 
 class BorrowingRecordResponse(BaseModel):
@@ -18,3 +17,7 @@ class BorrowingRecordResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UpdateBorrowingRecordRequest(BaseModel):
+    return_date: date | None = None

@@ -1,11 +1,11 @@
 from datetime import date
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 
 from app.models.engine import get_db
 from app.models.models import Book, BorrowingRecords, Member
-from app.schema.borrowing_record import BorrowingRecordRequest, BorrowingRecordResponse
+from app.schema.borrowing_record import BorrowingRecordRequest, BorrowingRecordResponse, UpdateBorrowingRecordRequest
 
 borrow_router = APIRouter(prefix="/borrowing_records", tags=["Borrowing Records"])
 
@@ -38,9 +38,7 @@ def create_borrowing_record(body: BorrowingRecordRequest, db: Session = Depends(
     new_record = BorrowingRecords(
         book_id=body.book_id,
         member_id=body.member_id,
-        member_name=member.name,  # ✅ Get member name from member object
         borrow_date=date.today(),  # ✅ Set today's date automatically
-        return_date=body.return_date,  # Can be None
     )
 
     db.add(new_record)
@@ -48,3 +46,28 @@ def create_borrowing_record(body: BorrowingRecordRequest, db: Session = Depends(
     db.refresh(new_record)
 
     return {"success": True, "data": new_record, "message": "Borrowing record created successfully"}
+
+
+@borrow_router.patch(path="/{borrow_id}")
+def update_borrowing_record(borrow_id: int, body: UpdateBorrowingRecordRequest, db: Session = Depends(get_db)):
+    # 1. Check if borrowing record exists
+    record = db.get(BorrowingRecords, borrow_id)
+    if not record:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Borrowing record not found")
+
+    # 2. Check if already returned
+    if record.return_date is not None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Book has already been returned")
+
+    # 3. Validate return date is not before borrow date
+    if body.return_date and body.return_date < record.borrow_date:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Return date cannot be before borrow date")
+
+    # 4. Update the record
+    record.return_date = body.return_date
+
+    db.add(record)
+    db.commit()
+    db.refresh(record)
+
+    return {"success": True, "data": record, "message": "Book returned successfully"}
