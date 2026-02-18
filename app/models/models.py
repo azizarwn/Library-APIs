@@ -75,3 +75,10 @@ class BorrowingRecords(SQLModel, table=True):
     return_date: date | None = None
     book: Book = Relationship(back_populates="borrowing_records")
     member: Member = Relationship(back_populates="borrowing_records")
+
+
+class User(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    username: str
+    email: str
+    password: str

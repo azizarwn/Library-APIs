@@ -8,3 +8,8 @@ Library design database
 - Track who borrowed which book,
 - Track when books were borrowed and returned,
 - A book can only be borrowed by one person at a time
+
+
+# Learning Journey
+- Authentication : Login & Register
+- Hashing : bcrypt method to store passwords in database
