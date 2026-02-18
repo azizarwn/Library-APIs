@@ -80,5 +80,5 @@ class BorrowingRecords(SQLModel, table=True):
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str
-    email: str
+    email: str = Field(unique=True)
     password: str
