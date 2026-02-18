@@ -18,7 +18,10 @@ def get_borrowing_records(db: Session = Depends(get_db)):
     return books
 
 
-@borrow_router.post(path="/")
+@borrow_router.post(
+    path="/",
+    status_code=status.HTTP_201_CREATED,
+)
 def create_borrowing_record(body: BorrowingRecordRequest, db: Session = Depends(get_db)):
     # 1. Check if book exists
     book = db.get(Book, body.book_id)

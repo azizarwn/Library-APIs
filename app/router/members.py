@@ -25,7 +25,7 @@ def get_member_by_id(id: int, db: Session = Depends(get_db)):
 
 @members_router.post(path="/", status_code=status.HTTP_201_CREATED, response_model=MemberResponse)
 def create_member(body: MemberRequest, db: Session = Depends(get_db)):
-    new_member = Member(name=body.name, email=body.email)
+    new_member = Member(**body.model_dump())
     db.add(new_member)
     db.commit()
     db.refresh(new_member)  # Get the ID and computed properties

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
 
 from app.models.engine import get_db
@@ -25,9 +25,12 @@ def get_book_by_id(id: int, db: Session = Depends(get_db)):
     return book
 
 
-@books_router.post(path="/")
+@books_router.post(
+    path="/",
+    status_code=status.HTTP_201_CREATED,
+)
 def create_book(body: BookRequest, db: Session = Depends(get_db)):
-    new_book = Book(title=body.title, author=body.author, isbn=body.isbn, published_year=body.published_year)
+    new_book = Book(**body.model_dump())
     db.add(new_book)
     db.commit()
     db.refresh(new_book)  # Get the ID and computed properties
