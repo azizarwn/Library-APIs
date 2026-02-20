@@ -2,14 +2,18 @@ from fastapi import APIRouter, Depends, status
 from sqlmodel import Session, select
 
 from app.models.engine import get_db
-from app.models.models import Book
+from app.models.models import Book, User
 from app.schema.book import BookRequest, BookResponse
+from app.services.auth import get_current_user
 
 books_router = APIRouter(prefix="/books", tags=["Books"])
 
 
 @books_router.get(path="/", response_model=list[BookResponse])
-def get_books(is_available: bool | None = None, db: Session = Depends(get_db)):
+def get_books(
+    is_available: bool | None = None, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    print(f"User {current_user.username} is accessing the books endpoint.")
     query = select(Book)
     books = db.exec(query).all()
 

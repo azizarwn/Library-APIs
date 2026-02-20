@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 from app.models.engine import get_db
 from app.models.models import User
 from app.schema.auth import LoginRequest, RegisterRequest
-from app.utils.auth import hash_password, is_password_valid
+from app.utils.auth import generate_token, hash_password, is_password_valid
 
 auth_router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -50,4 +50,5 @@ def login_user(body: LoginRequest, db: Session = Depends(get_db)):
     # beetwen the two cases, the user is not found or the password is incorrect,
     # we return the same error message to avoid giving hints to potential attackers
     # about which part of the credentials is wrong (UX Security).
-    return {"success": True, "message": "Login successful"}
+    token = generate_token({"id": user.id})
+    return {"success": True, "message": "Login successful", "token": token}
